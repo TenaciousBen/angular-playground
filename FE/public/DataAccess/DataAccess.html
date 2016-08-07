@@ -1,10 +1,21 @@
+<style type="text/css">
+    .selected {
+        background-color: #267cb2;
+        color: white;
+    }
+</style>
+
 <div ng-controller="dataAccessController as dataAccessCtrl" ng-init="dataAccessCtrl.init()">
     <div>
-        <button ng-click="">Query</button>
+        <label>Id (optional):</label>
+        <input ng-model="dataAccessCtrl.id" />
+        <button ng-click="dataAccessCtrl.get(dataAccessCtrl.id)">Get</button>
     </div>
     <div>
         <h3>values:</h3>
-        <div ng-repeat="value in dataAccessCtrl.values track by $index">
+        <div ng-repeat="value in dataAccessCtrl.values track by $index"
+             ng-click="dataAccessCtrl.value = value"
+             ng-class="{'selected': dataAccessCtrl.value === value}">
             <p>id: {{value.id}}</p>
             <p>name: {{value.name}}</p>
         </div>

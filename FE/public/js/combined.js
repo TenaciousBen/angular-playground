@@ -96,6 +96,40 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var Page = function Page(name, route, description) {
+    _classCallCheck(this, Page);
+
+    this.name = name;
+    this.route = route;
+    this.description = description;
+};
+
+var PageSelectorController = function () {
+    function PageSelectorController($state) {
+        _classCallCheck(this, PageSelectorController);
+
+        this.$state = $state;
+        this.selectedPage = null;
+        this.pages = [new Page("Index", "pageSelector.index", "Shows the usage of ng-options and filtering"), new Page("Data Access", "pageSelector.dataAccess", "Shows the usage of a base REST service with babel")];
+    }
+
+    _createClass(PageSelectorController, [{
+        key: "go",
+        value: function go(selectedPage) {
+            this.$state.go(selectedPage.route);
+        }
+    }]);
+
+    return PageSelectorController;
+}();
+
+app.controller("pageSelectorController", ["$state", PageSelectorController]);
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var DataAccessController = function () {
     function DataAccessController(valuesService) {
         _classCallCheck(this, DataAccessController);
@@ -103,17 +137,60 @@ var DataAccessController = function () {
         this.valuesService = valuesService;
         this.values = [];
         this.error = null;
+        this.method = "GET";
+        this.id = null;
+        this.value = null;
     }
 
     _createClass(DataAccessController, [{
         key: "init",
         value: function init() {
+            //here is where you'd initialize the controller if initialization had to occur
+        }
+    }, {
+        key: "get",
+        value: function get() {
             var _this = this;
 
-            this.valuesService.get().then(function (values) {
+            var id = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+            this.valuesService.get(id).then(function (values) {
                 return _this.values = values;
             }).catch(function (error) {
                 return _this.error = error;
+            });
+        }
+    }, {
+        key: "post",
+        value: function post(viewModel) {
+            var _this2 = this;
+
+            this.valuesService.post(viewModel).then(function (value) {
+                return _this2.values.push(value);
+            }).catch(function (error) {
+                return _this2.error = error;
+            });
+        }
+    }, {
+        key: "put",
+        value: function put(viewModel) {
+            var _this3 = this;
+
+            this.valuesService.put(viewModel).catch(function (error) {
+                return _this3.error = error;
+            });
+        }
+    }, {
+        key: "delete",
+        value: function _delete(viewModel) {
+            var _this4 = this;
+
+            this.valuesService.post(viewModel).then(function (value) {
+                return _this4.values = _this4.values.filter(function (v) {
+                    return v.id !== viewModel.id;
+                });
+            }).catch(function (error) {
+                return _this4.error = error;
             });
         }
     }]);
@@ -141,6 +218,13 @@ var RestServiceBase = function () {
         this.apiUrl = "http://localhost:12345/api/" + endpoint;
     }
 
+    /**
+     * Converts the parameter api model to a {ViewModelBase}
+     * Must be overridden in derived classes
+     * @param {ApiModelBase} apiModel
+     */
+
+
     _createClass(RestServiceBase, [{
         key: "toViewModel",
         value: function toViewModel(apiModel) {
@@ -148,23 +232,107 @@ var RestServiceBase = function () {
         }
     }, {
         key: "toApiModel",
+
+
+        /**
+         * Converts the parameter api model to a {ViewModelBase}
+         * Must be overridden in derived classes
+         * @param {ViewModelBase} viewModel
+         */
         value: function toApiModel(viewModel) {
             throw new Error("Abstract");
         }
     }, {
         key: "get",
+
+
+        /**
+         * Issues a GET request to the API, optionally taking a numeric id for a specific item
+         * Returns an array of elements, containing all items if no id is passed or just the item with
+         * the matching id if an id is passed
+         * @param {number=} id
+         * @returns {(Promise.<Array.<ViewModelBase>>)}
+         */
         value: function get() {
             var _this = this;
 
             var id = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
             var deferred = this.$q.defer();
-            this.$http.get(this.apiUrl, { params: { id: id } }).then(function (response) {
-                console.log(response);
+            var params = id ? { id: id } : {};
+            this.$http.get(this.apiUrl, { params: params }).then(function (response) {
                 var responseIsEnumerable = Object.prototype.toString.call(response.data) === "[object Array]";
                 var enumerableData = responseIsEnumerable ? response.data : [response.data];
                 var convertedData = enumerableData.map(_this.toViewModel);
                 deferred.resolve(convertedData);
+            }).catch(function (error) {
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        }
+    }, {
+        key: "post",
+
+
+        /**
+         * Issues a POST request to the API for the parameter view model
+         * This should cause the server to add the parameter view model to its list of entities
+         * @param {ViewModelBase} viewModel
+         * @returns {(Promise.<ViewModelBase>)}
+         */
+        value: function post(viewModel) {
+            var _this2 = this;
+
+            var deferred = this.$q.defer();
+            var apiModel = this.toApiModel(viewModel);
+            this.$http.post(this.apiUrl, { data: apiModel }).then(function (response) {
+                var converted = _this2.toViewModel(response.data);
+                deferred.resolve(converted);
+            }).catch(function (error) {
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        }
+
+        /**
+         * Issues a PUT request to the API with the id of the parameter view model, passing the view model
+         * This should cause the server to update the value of the entity with a matching id to the values present
+         * in the parameter view model
+         * @param {ViewModelBase} viewModel
+         * @returns {(Promise.<ViewModelBase>)}
+         */
+
+    }, {
+        key: "put",
+        value: function put(viewModel) {
+            var _this3 = this;
+
+            var deferred = this.$q.defer();
+            var apiModel = this.toApiModel(viewModel);
+            this.$http.put(this.apiUrl, { params: { id: apiModel.id }, data: apiModel }).then(function (response) {
+                var converted = _this3.toViewModel(response.data);
+                deferred.resolve(converted);
+            }).catch(function (error) {
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        }
+
+        //this is a keyword in js so perhaps best avoided, but given that Google's $http object is using it, I will too
+        /**
+         * Issues a DELETE request to the API with the id of the parameter view model
+         * This should cause the server to delete the entity with a matching id
+         * @param {ViewModelBase} viewModel
+         * @returns {Promise}
+         */
+
+    }, {
+        key: "delete",
+        value: function _delete(viewModel) {
+            var deferred = this.$q.defer();
+            var apiModel = this.toApiModel(viewModel);
+            this.$http.delete(this.apiUrl, { params: { id: apiModel.id } }).then(function (response) {
+                deferred.resolve();
             }).catch(function (error) {
                 deferred.reject(error);
             });
@@ -187,7 +355,6 @@ var ValuesService = function (_RestServiceBase) {
     _createClass(ValuesService, [{
         key: "toViewModel",
         value: function toViewModel(apiModel) {
-            console.log(apiModel);
             return ValueViewModel.fromApiModel(apiModel);
         }
     }, {
@@ -200,12 +367,28 @@ var ValuesService = function (_RestServiceBase) {
     return ValuesService;
 }(RestServiceBase);
 
-var ValueViewModel = function () {
+var ApiModelBase = function ApiModelBase(id) {
+    _classCallCheck(this, ApiModelBase);
+
+    this.id = id;
+};
+
+var ViewModelBase = function ViewModelBase(id) {
+    _classCallCheck(this, ViewModelBase);
+
+    this.id = id;
+};
+
+var ValueViewModel = function (_ViewModelBase) {
+    _inherits(ValueViewModel, _ViewModelBase);
+
     function ValueViewModel(id, name) {
         _classCallCheck(this, ValueViewModel);
 
-        this.id = id;
-        this.name = name;
+        var _this5 = _possibleConstructorReturn(this, Object.getPrototypeOf(ValueViewModel).call(this, id));
+
+        _this5.name = name;
+        return _this5;
     }
 
     _createClass(ValueViewModel, null, [{
@@ -216,32 +399,7 @@ var ValueViewModel = function () {
     }]);
 
     return ValueViewModel;
-}();
+}(ViewModelBase);
 
 app.service("ValuesService", ["$http", "$q", ValuesService]);
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var PageSelectorController = function () {
-    function PageSelectorController($state) {
-        _classCallCheck(this, PageSelectorController);
-
-        this.$state = $state;
-        this.stateName = "";
-    }
-
-    _createClass(PageSelectorController, [{
-        key: "go",
-        value: function go(stateName) {
-            this.$state.go(this.stateName);
-        }
-    }]);
-
-    return PageSelectorController;
-}();
-
-app.controller("pageSelectorController", ["$state", PageSelectorController]);
 }());
