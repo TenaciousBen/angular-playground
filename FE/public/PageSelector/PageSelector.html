@@ -1,0 +1,11 @@
+<div>
+    <div id="navigator" ng-controller="pageSelectorController as pageSelectorCtrl">
+        <select ng-model="pageSelectorCtrl.stateName">
+            <option value="pageSelector.index">Index</option>
+            <option value="pageSelector.dataAccess">Data Access</option>
+        </select>
+        <button ng-click="pageSelectorCtrl.go(pageSelectorCtrl.stateName)">Go</button>
+    </div>
+    <hr class="page-selector-separator">
+    <div ui-view=""></div>
+</div>

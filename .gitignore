@@ -1,3 +1,24 @@
+# =========================
+# Repo-specific
+# =========================
+
+#JetBrains IDE folder
+.idea
+FE/bower_components
+FE/node_modules
+BE/ApiBackend/ApiBackend/bin/*
+BE/ApiBackend/ApiBackend/obj/*
+BE/ApiBackend/ApiBackend.Tests/bin/*
+BE/ApiBackend/ApiBackend.Tests/obj/*
+*.csproj.user
+BE/ApiBackend/packages
+BE/ApiBackend/.vs
+
+
+# =========================
+# Github for Windows defaults
+# =========================
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div ng-controller="peopleController as peopleCtrl">
+    <select ng-model="peopleCtrl.sortBy" ng-options="option as option.display for option in peopleCtrl.sortOptions">
+    </select>
+    <div ng-repeat="person in peopleCtrl.people | orderBy:peopleCtrl.sortBy.property:peopleCtrl.sortBy.reverse">
+        <p>{{person.name}}</p>
+        <p>{{person.age}}</p>
+    </div>
+</div>
+</body>
+</html>

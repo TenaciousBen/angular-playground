@@ -1,0 +1,17 @@
+<div ng-controller="dataAccessController as dataAccessCtrl" ng-init="dataAccessCtrl.init()">
+    <div>
+        <button ng-click="">Query</button>
+    </div>
+    <div>
+        <h3>values:</h3>
+        <div ng-repeat="value in dataAccessCtrl.values track by $index">
+            <p>id: {{value.id}}</p>
+            <p>name: {{value.name}}</p>
+        </div>
+    </div>
+    <hr>
+    <div ng-if="dataAccessCtrl.error">
+        <h3>error:</h3>
+        <p>{{dataAccessCtrl.error}}</p>
+    </div>
+</div>
