@@ -16,4 +16,4 @@ class PeopleController {
     }
 }
 
-app.controller("peopleController", ["peopleService", PeopleController]);
+angular.module("playground").controller("peopleController", ["peopleService", PeopleController]);

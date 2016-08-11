@@ -15,7 +15,7 @@ gulp.task("clear-public", function () {
 });
 
 gulp.task("combine-js", ["clear-public"], function () {
-    return gulp.src('./views/**/*.js')
+    return gulp.src(['./views/**/*.js', "./serverConfig.js"])
         .pipe(babel({
             presets: ['es2015']
         }))
@@ -28,7 +28,7 @@ gulp.task("combine-js", ["clear-public"], function () {
 gulp.task("bower-files", ["clear-public"], function () {
     return gulp.src(mainBowerFiles())
         .pipe(concat('vendor.js'))
-        .pipe(iife())
+        // .pipe(iife())
         // .pipe(minifier({}, uglifyjs))
         .pipe(gulp.dest("./public/js"));
 });

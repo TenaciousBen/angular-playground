@@ -3,7 +3,7 @@
 
 "use strict";
 
-var app = angular.module("playground", ["ui.router"]);
+var app = angular.module("playground", ["ui.router", "ngCookies"]);
 
 app.config(function ($httpProvider) {
     //Enable cross domain calls
@@ -28,102 +28,130 @@ app.config(function ($stateProvider, $urlRouterProvider) {
     }).state("pageSelector.dataAccess", {
         url: "/DataAccess",
         templateUrl: "/DataAccess/DataAccess.html"
+    }).state("pageSelector.account", {
+        url: "/Account",
+        templateUrl: "/Account/Account.html"
+    }).state("pageSelector.authorized", {
+        url: "/Authorized",
+        templateUrl: "/Authorized/Authorized.html"
     });
+});
+
+app.config(function ($httpProvider) {
+    $httpProvider.interceptors.push('authInterceptor');
 });
 "use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var PeopleSortOption = function PeopleSortOption(display, property, reverse) {
-    _classCallCheck(this, PeopleSortOption);
-
-    this.display = display;
-    this.property = property;
-    this.reverse = reverse;
-};
-
-var PeopleController = function PeopleController(peopleService) {
-    _classCallCheck(this, PeopleController);
-
-    this.peopleService = peopleService;
-    this.people = this.peopleService.getPeople();
-    var defaultSortOption = new PeopleSortOption("alphabetical", "name", false);
-    this.sortOptions = [defaultSortOption, new PeopleSortOption("oldest", "age", true)];
-    this.sortBy = defaultSortOption;
-};
-
-app.controller("peopleController", ["peopleService", PeopleController]);
-"use strict";
-"use strict";
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Person = function Person(name, age) {
-    _classCallCheck(this, Person);
+var AccountController = function () {
+    function AccountController(accountService) {
+        _classCallCheck(this, AccountController);
 
-    this.name = name;
-    this.age = age;
-};
-
-var PeopleService = function () {
-    function PeopleService() {
-        _classCallCheck(this, PeopleService);
-
-        this.people = [new Person("Micky", 26), new Person("Paula", 57), new Person("Jimmy", 23)];
+        this.accountService = accountService;
+        this.registerModel = new RegisterModel();
+        this.loginModel = new LoginModel();
+        this.lastResponse = null;
+        this.isLoggedIn = this.accountService.isLoggedIn();
     }
 
-    _createClass(PeopleService, [{
-        key: "getPeople",
-        value: function getPeople() {
-            return this.people;
+    _createClass(AccountController, [{
+        key: "login",
+        value: function login(loginModel) {
+            var _this = this;
+
+            this.accountService.login(loginModel.userName, loginModel.password).then(function (response) {
+                _this.lastResponse = "login successful";
+                _this.isLoggedIn = _this.accountService.isLoggedIn();
+            }).catch(function (response) {
+                _this.lastResponse = response;
+            });
         }
     }, {
-        key: "setPeople",
-        value: function setPeople(people) {
-            this.people = people;
+        key: "logout",
+        value: function logout() {
+            this.accountService.logout();
+            this.isLoggedIn = this.accountService.isLoggedIn();
+        }
+    }, {
+        key: "register",
+        value: function register(registerModel) {
+            var _this2 = this;
+
+            this.accountService.register(registerModel.userName, registerModel.password, registerModel.confirmPassword).then(function (response) {
+                _this2.lastResponse = "registration successful";
+            }).catch(function (response) {
+                _this2.lastResponse = response;
+            });
         }
     }]);
 
-    return PeopleService;
+    return AccountController;
 }();
 
-app.service("peopleService", [PeopleService]);
+var LoginModel = function LoginModel() {
+    _classCallCheck(this, LoginModel);
+
+    this.userName = "";
+    this.password = "";
+};
+
+var RegisterModel = function (_LoginModel) {
+    _inherits(RegisterModel, _LoginModel);
+
+    function RegisterModel() {
+        _classCallCheck(this, RegisterModel);
+
+        var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterModel).call(this));
+
+        _this3.confirmPassword = "";
+        return _this3;
+    }
+
+    return RegisterModel;
+}(LoginModel);
+
+angular.module("playground").controller("accountController", ["accountService", AccountController]);
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Page = function Page(name, route, description) {
-    _classCallCheck(this, Page);
+var AuthorizedController = function () {
+    function AuthorizedController(usersService) {
+        _classCallCheck(this, AuthorizedController);
 
-    this.name = name;
-    this.route = route;
-    this.description = description;
-};
-
-var PageSelectorController = function () {
-    function PageSelectorController($state) {
-        _classCallCheck(this, PageSelectorController);
-
-        this.$state = $state;
-        this.selectedPage = null;
-        this.pages = [new Page("Index", "pageSelector.index", "Shows the usage of ng-options and filtering"), new Page("Data Access", "pageSelector.dataAccess", "Shows the usage of a base REST service with babel")];
+        this.usersService = usersService;
+        this.users = [];
+        this.error = null;
     }
 
-    _createClass(PageSelectorController, [{
-        key: "go",
-        value: function go(selectedPage) {
-            this.$state.go(selectedPage.route);
+    _createClass(AuthorizedController, [{
+        key: "getUsers",
+        value: function getUsers() {
+            var _this = this;
+
+            this.usersService.get().then(function (users) {
+                _this.users = users;
+            }).catch(function (error) {
+                return _this.error = error;
+            });
         }
     }]);
 
-    return PageSelectorController;
+    return AuthorizedController;
 }();
 
-app.controller("pageSelectorController", ["$state", PageSelectorController]);
+angular.module("playground").controller("authorizedController", ["usersService", AuthorizedController]);
+//moved to dataAccessServices temporarily, while we sort out modules
+"use strict";
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -198,7 +226,7 @@ var DataAccessController = function () {
     return DataAccessController;
 }();
 
-app.controller("dataAccessController", ["ValuesService", DataAccessController]);
+angular.module("playground").controller("dataAccessController", ["ValuesService", DataAccessController]);
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -215,7 +243,7 @@ var RestServiceBase = function () {
 
         this.$http = $http;
         this.$q = $q;
-        this.apiUrl = "http://localhost:12345/api/" + endpoint;
+        this.apiUrl = backendConfig.baseUrl() + "/api/" + endpoint;
     }
 
     /**
@@ -401,5 +429,355 @@ var ValueViewModel = function (_ViewModelBase) {
     return ValueViewModel;
 }(ViewModelBase);
 
-app.service("ValuesService", ["$http", "$q", ValuesService]);
+angular.module("playground").service("ValuesService", ["$http", "$q", ValuesService]);
+
+var UsersService = function (_RestServiceBase2) {
+    _inherits(UsersService, _RestServiceBase2);
+
+    function UsersService($http, $q) {
+        _classCallCheck(this, UsersService);
+
+        return _possibleConstructorReturn(this, Object.getPrototypeOf(UsersService).call(this, $http, $q, "Users"));
+    }
+
+    _createClass(UsersService, [{
+        key: "toViewModel",
+        value: function toViewModel(apiModel) {
+            return UserViewModel.fromApiModel(apiModel);
+        }
+    }, {
+        key: "toApiModel",
+        value: function toApiModel(viewModel) {
+            return viewModel;
+        }
+    }]);
+
+    return UsersService;
+}(RestServiceBase);
+
+var UserViewModel = function (_ViewModelBase2) {
+    _inherits(UserViewModel, _ViewModelBase2);
+
+    function UserViewModel(id, userName) {
+        _classCallCheck(this, UserViewModel);
+
+        var _this7 = _possibleConstructorReturn(this, Object.getPrototypeOf(UserViewModel).call(this, id));
+
+        _this7.userName = userName;
+        return _this7;
+    }
+
+    _createClass(UserViewModel, null, [{
+        key: "fromApiModel",
+        value: function fromApiModel(apiModel) {
+            return new UserViewModel(apiModel.Id, apiModel.UserName);
+        }
+    }]);
+
+    return UserViewModel;
+}(ViewModelBase);
+
+angular.module("playground").service("usersService", ["$http", "$q", UsersService]);
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PeopleSortOption = function PeopleSortOption(display, property, reverse) {
+    _classCallCheck(this, PeopleSortOption);
+
+    this.display = display;
+    this.property = property;
+    this.reverse = reverse;
+};
+
+var PeopleController = function PeopleController(peopleService) {
+    _classCallCheck(this, PeopleController);
+
+    this.peopleService = peopleService;
+    this.people = this.peopleService.getPeople();
+    var defaultSortOption = new PeopleSortOption("alphabetical", "name", false);
+    this.sortOptions = [defaultSortOption, new PeopleSortOption("oldest", "age", true)];
+    this.sortBy = defaultSortOption;
+};
+
+angular.module("playground").controller("peopleController", ["peopleService", PeopleController]);
+"use strict";
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Person = function Person(name, age) {
+    _classCallCheck(this, Person);
+
+    this.name = name;
+    this.age = age;
+};
+
+var PeopleService = function () {
+    function PeopleService() {
+        _classCallCheck(this, PeopleService);
+
+        this.people = [new Person("Micky", 26), new Person("Paula", 57), new Person("Jimmy", 23)];
+    }
+
+    _createClass(PeopleService, [{
+        key: "getPeople",
+        value: function getPeople() {
+            return this.people;
+        }
+    }, {
+        key: "setPeople",
+        value: function setPeople(people) {
+            this.people = people;
+        }
+    }]);
+
+    return PeopleService;
+}();
+
+angular.module("playground").service("peopleService", [PeopleService]);
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Page = function Page(name, route, description) {
+    _classCallCheck(this, Page);
+
+    this.name = name;
+    this.route = route;
+    this.description = description;
+};
+
+var PageSelectorController = function () {
+    function PageSelectorController($state) {
+        _classCallCheck(this, PageSelectorController);
+
+        this.$state = $state;
+        this.selectedPage = null;
+        this.pages = [new Page("Index", "pageSelector.index", "Shows the usage of ng-options and filtering"), new Page("Data Access", "pageSelector.dataAccess", "Shows the usage of a base REST service with babel"), new Page("Account", "pageSelector.account", "Logs into or registers user accounts"), new Page("Authorized", "pageSelector.authorized", "Performs a sample action which requires authorization and authentication")];
+    }
+
+    _createClass(PageSelectorController, [{
+        key: "go",
+        value: function go(selectedPage) {
+            this.$state.go(selectedPage.route);
+        }
+    }]);
+
+    return PageSelectorController;
+}();
+
+angular.module("playground").controller("pageSelectorController", ["$state", "accountService", PageSelectorController]);
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AccountService = function () {
+    function AccountService($http, $q, authStateService) {
+        _classCallCheck(this, AccountService);
+
+        this.$http = $http;
+        this.$q = $q;
+        this.authStateService = authStateService;
+    }
+
+    _createClass(AccountService, [{
+        key: "login",
+        value: function login(username, password) {
+            var _this = this;
+
+            var deferred = this.$q.defer();
+            var request = this.$http({
+                url: backendConfig.baseUrl() + "/token",
+                method: "POST",
+                data: { grant_type: 'password', username: username, password: password },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                transformRequest: function transformRequest(obj) {
+                    var str = [];
+                    for (var p in obj) {
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    }return str.join("&");
+                }
+            }).then(function (response) {
+                console.log("logged in");
+                console.log(response);
+                _this.authStateService.setToken(response.data.userName, response.data.access_token, response.data.refresh_token);
+                deferred.resolve();
+            }).catch(function (response) {
+                console.log("login error");
+                console.log(response);
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        }
+    }, {
+        key: "logout",
+        value: function logout() {
+            if (!this.authStateService.hasToken()) return;
+            this.authStateService.deleteToken();
+        }
+    }, {
+        key: "isLoggedIn",
+        value: function isLoggedIn() {
+            return !!this.authStateService.hasToken();
+        }
+    }, {
+        key: "register",
+        value: function register(username, password) {
+            var deferred = this.$q.defer();
+            var request = this.$http({
+                url: backendConfig.baseUrl() + "/api/" + "account/register",
+                method: "GET",
+                params: { Email: username, Password: password, ConfirmPassword: password }
+            }).then(function (response) {
+                console.log("registered");
+                console.log(response);
+                deferred.resolve();
+            }).catch(function (response) {
+                console.log("register error");
+                console.log(response);
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        }
+    }]);
+
+    return AccountService;
+}();
+
+angular.module("playground").service("accountService", ["$http", "$q", "authStateService", AccountService]);
+"use strict";
+
+function authInterceptor(authStateService) {
+    var auth = {};
+
+    auth.isApiRequest = function (config) {
+        return config.url.indexOf(backendConfig.baseUrl()) == 0;
+    };
+
+    auth.request = function (config) {
+        console.log("request made");
+        if (auth.isApiRequest(config)) {
+            config.headers = config.headers || {};
+            console.log("Giving request auth");
+            if (authStateService.hasToken()) {
+                var authentication = authStateService.getToken();
+                config.headers.Authorization = 'Bearer ' + authentication.accessToken;
+                console.log("Added auth to request");
+            } else {
+                //explode or something
+            }
+        }
+        return config;
+    };
+
+    //Not yet implemented
+    //  auth.responseError = function(rejection) {
+    //     console.log("handling rejected request");
+    //     var deferred = $q.defer();
+    //
+    //     if (rejection.status === 401 && this.isApiRequest(rejection.config)) {
+    //         console.log("rejected due to 401");
+    //         var authService = $injector.get('loginService');
+    //         $requestBuffer.append(rejection.config, deferred);
+    //         authService.refreshToken();
+    //     } else {
+    //         /*console.log("_responseError reject");*/
+    //         deferred.reject(rejection);
+    //     }
+    //     /*console.log("Deferred.promise for refreshToken");
+    //      console.log(deferred.promise);*/
+    //     return deferred.promise;
+    // };
+    return auth;
+}
+
+angular.module("playground").factory("authInterceptor", ["authStateService", authInterceptor]);
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AuthStateService = function () {
+    function AuthStateService($cookies) {
+        _classCallCheck(this, AuthStateService);
+
+        this.$cookies = $cookies;
+        this.authCookieName = "token";
+    }
+
+    _createClass(AuthStateService, [{
+        key: "setToken",
+        value: function setToken(user, accessToken, refreshToken) {
+            var token = new Token(user, accessToken, refreshToken);
+            var stringifiedToken = JSON.stringify(token);
+            this.$cookies.put(this.authCookieName, stringifiedToken, { domain: frontendConfig.domain });
+        }
+    }, {
+        key: "getToken",
+        value: function getToken() {
+            var jsonEncodedToken = this.$cookies.get(this.authCookieName);
+            if (!jsonEncodedToken) return null;
+            var token = JSON.parse(jsonEncodedToken);
+            return token;
+        }
+    }, {
+        key: "hasToken",
+        value: function hasToken() {
+            return !!this.getToken();
+        }
+    }, {
+        key: "deleteToken",
+        value: function deleteToken() {
+            if (!this.hasToken()) return;
+            this.$cookies.put(this.authCookieName, null, { domain: frontendConfig.domain });
+        }
+    }]);
+
+    return AuthStateService;
+}();
+
+var Token = function Token(userName, accessToken, refreshToken) {
+    _classCallCheck(this, Token);
+
+    this.userName = userName;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+};
+
+angular.module("playground").service("authStateService", ["$cookies", AuthStateService]);
+"use strict";
+
+var frontendConfig = {
+    protocol: "http",
+    domain: "localhost",
+    port: 8000,
+    baseUrl: function baseUrl() {
+        return frontendConfig.protocol + "://" + frontendConfig.domain + ":" + frontendConfig.port;
+    }
+};
+
+var backendConfig = {
+    protocol: "http",
+    domain: "localhost",
+    port: 12345,
+    baseUrl: function baseUrl() {
+        return backendConfig.protocol + "://" + backendConfig.domain + ":" + backendConfig.port;
+    }
+};
+
+//this will be shared across node and ng, so module won't exist on ng
+if (typeof module !== "undefined") {
+    module.exports = {
+        frontendConfig: frontendConfig,
+        backendConfig: backendConfig
+    };
+}
 }());

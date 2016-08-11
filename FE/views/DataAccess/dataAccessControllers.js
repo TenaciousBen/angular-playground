@@ -36,4 +36,4 @@ class DataAccessController {
     }
 }
 
-app.controller("dataAccessController", ["ValuesService", DataAccessController]);
+angular.module("playground").controller("dataAccessController", ["ValuesService", DataAccessController]);

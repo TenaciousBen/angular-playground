@@ -40,7 +40,8 @@ namespace ApiBackend
                 AuthorizeEndpointPath = new PathString("/api/Account/ExternalLogin"),
                 AccessTokenExpireTimeSpan = TimeSpan.FromDays(14),
                 // In production mode set AllowInsecureHttp = false
-                AllowInsecureHttp = true
+                AllowInsecureHttp = true,
+                RefreshTokenProvider = new ApplicationRefreshTokenProvider()
             };
 
             // Enable the application to use bearer tokens to authenticate users

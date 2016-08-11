@@ -1,6 +1,8 @@
+var config = require("./serverConfig");
+
 var express = require('express'),
     app = express(),
-    port = process.env.PORT || 8080;
+    port = config.frontendConfig.port;
 
 app.use(express.static("./public"));
 app.listen(port);

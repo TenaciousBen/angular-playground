@@ -2,7 +2,7 @@ class RestServiceBase {
     constructor($http, $q, endpoint) {
         this.$http = $http;
         this.$q = $q;
-        this.apiUrl = "http://localhost:12345/api/" + endpoint;
+        this.apiUrl = backendConfig.baseUrl() + "/api/" + endpoint;
     }
 
     /**
@@ -145,4 +145,31 @@ class ValueViewModel extends ViewModelBase {
     }
 }
 
-app.service("ValuesService", ["$http", "$q", ValuesService]);
+angular.module("playground").service("ValuesService", ["$http", "$q", ValuesService]);
+
+class UsersService extends RestServiceBase {
+    constructor($http, $q) {
+        super($http, $q, "Users");
+    }
+
+    toViewModel(apiModel) {
+        return UserViewModel.fromApiModel(apiModel);
+    };
+
+    toApiModel(viewModel) {
+        return viewModel
+    };
+}
+
+class UserViewModel extends ViewModelBase {
+    constructor(id, userName) {
+        super(id);
+        this.userName = userName;
+    }
+
+    static fromApiModel(apiModel){
+        return new UserViewModel(apiModel.Id, apiModel.UserName);
+    }
+}
+
+angular.module("playground").service("usersService", ["$http", "$q", UsersService]);

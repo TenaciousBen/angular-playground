@@ -19,4 +19,4 @@ class PeopleService {
     }
 }
 
-app.service("peopleService", [PeopleService]);
+angular.module("playground").service("peopleService", [PeopleService]);

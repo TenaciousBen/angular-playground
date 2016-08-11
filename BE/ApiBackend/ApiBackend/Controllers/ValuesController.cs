@@ -24,14 +24,13 @@ namespace ApiBackend.Controllers
     public class ValuesController : CachedRestController<Value>
     {
         public ValuesController() 
-            : base("ValuesController",
+            : base("Values",
                   new List<Value>
                   {
                       new Value(1, "one"),
                       new Value(2, "two"),
                       new Value(3, "three")
                   })
-        {
-        }
+        { }
     }
 }

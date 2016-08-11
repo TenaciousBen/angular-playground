@@ -12,7 +12,9 @@ class PageSelectorController {
         this.selectedPage = null;
         this.pages = [
             new Page("Index", "pageSelector.index", "Shows the usage of ng-options and filtering"),
-            new Page("Data Access", "pageSelector.dataAccess", "Shows the usage of a base REST service with babel")
+            new Page("Data Access", "pageSelector.dataAccess", "Shows the usage of a base REST service with babel"),
+            new Page("Account", "pageSelector.account", "Logs into or registers user accounts"),
+            new Page("Authorized", "pageSelector.authorized", "Performs a sample action which requires authorization and authentication")
         ];
     }
 
@@ -21,4 +23,4 @@ class PageSelectorController {
     }
 }
 
-app.controller("pageSelectorController", ["$state", PageSelectorController]);
+angular.module("playground").controller("pageSelectorController", ["$state", "accountService", PageSelectorController]);

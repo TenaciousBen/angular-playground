@@ -1,6 +1,7 @@
 var app = angular.module("playground",
     [
-        "ui.router"
+        "ui.router",
+        "ngCookies"
     ]);
 
 app.config(function($httpProvider) {
@@ -30,5 +31,17 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         .state("pageSelector.dataAccess", {
             url: "/DataAccess",
             templateUrl: "/DataAccess/DataAccess.html"
+        })
+        .state("pageSelector.account", {
+            url: "/Account",
+            templateUrl: "/Account/Account.html"
+        })
+        .state("pageSelector.authorized", {
+            url: "/Authorized",
+            templateUrl: "/Authorized/Authorized.html"
         });
+});
+
+app.config(function ($httpProvider) {
+    $httpProvider.interceptors.push('authInterceptor');
 });

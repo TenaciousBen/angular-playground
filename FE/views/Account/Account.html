@@ -1,0 +1,25 @@
+<div ng-controller="accountController as accountCtrl">
+    <div ng-if="accountCtrl.isLoggedIn">
+        <button ng-click="accountCtrl.logout()">Log out</button>
+    </div>
+    <div >
+        <h3>Register</h3>
+        <label>username</label>
+        <input ng-model="accountCtrl.registerModel.userName" />
+        <label>password</label>
+        <input ng-model="accountCtrl.registerModel.password" />
+        <label>confirm password</label>
+        <input ng-model="accountCtrl.registerModel.confirmPassword" />
+        <button ng-click="accountCtrl.register(accountCtrl.registerModel)">register</button>
+    </div>
+    <div >
+        <h3>Login</h3>
+        <label>username</label>
+        <input ng-model="accountCtrl.loginModel.userName" />
+        <label>password</label>
+        <input ng-model="accountCtrl.loginModel.password" />
+        <button ng-click="accountCtrl.login(accountCtrl.loginModel)">login</button>
+    </div>
+    <hr>
+    <p>{{accountCtrl.lastResponse}}</p>
+</div>

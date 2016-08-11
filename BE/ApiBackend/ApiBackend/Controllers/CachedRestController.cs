@@ -12,6 +12,15 @@ namespace ApiBackend.Controllers
     public class ApiModel
     {
         public int Id { get; set; }
+
+        public ApiModel(int id)
+        {
+            Id = id;
+        }
+
+        public ApiModel() : this(-1)
+        {
+        }
     }
 
     [EnableCors("*", "*", "GET, POST, PUT, DELETE, OPTIONS")]
@@ -30,12 +39,15 @@ namespace ApiBackend.Controllers
             Values = inCache ?? defaultValues;
         }
 
+        [Route("Get")]
         // GET api/values
         public IEnumerable<T> Get() => Values;
 
+        [Route("Get/{id}")]
         // GET api/values/5
         public T Get(int id) => GetReferentially(id);
 
+        [Route("Post")]
         // POST api/values
         public T Post([FromBody]T value)
         {
@@ -46,6 +58,7 @@ namespace ApiBackend.Controllers
             return value;
         }
 
+        [Route("Put")]
         // PUT api/values/5
         public T Put(int id, [FromBody]T value)
         {
@@ -57,6 +70,7 @@ namespace ApiBackend.Controllers
             return existing;
         }
 
+        [Route("Delete")]
         // DELETE api/values/5
         public void Delete(int id)
         {
