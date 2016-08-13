@@ -21,5 +21,17 @@
         <button ng-click="accountCtrl.login(accountCtrl.loginModel)">login</button>
     </div>
     <hr>
+    <div ng-if="accountCtrl.currentUser">
+        <button ng-click="accountCtrl.getRoles()">Get roles</button>
+        <h3>current user roles</h3>
+        <div ng-repeat="role in accountCtrl.currentUser.roles">
+            <p>{{role}} <button href="#" ng-click="accountCtrl.removeRole(role)">(remove)</button></p>
+        </div>
+        <h3>add role</h3>
+        <label>role</label>
+        <input ng-model="accountCtrl.roleName" />
+        <button ng-click="accountCtrl.addRole(accountCtrl.roleName)">Add role</button>
+    </div>
+    <hr>
     <p>{{accountCtrl.lastResponse}}</p>
 </div>

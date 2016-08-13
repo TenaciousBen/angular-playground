@@ -7,7 +7,7 @@ using System.Web.Http;
 namespace ApiBackend.Controllers
 {
     [Authorize]
-    [RoutePrefix("/api/Users")]
+    [RoutePrefix("api/Users")]
     public class UsersController : CachedRestController<UserViewModel>
     {
         public UsersController() 
@@ -17,6 +17,19 @@ namespace ApiBackend.Controllers
                       new UserViewModel(1, "Foo")
                   })
         { }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [Route("AdminFunction")]
+        public string AdminFunction([FromBody] AdminFunctionViewModel adminFunctionViewModel)
+        {
+            return "You're an admin, Harry: " + adminFunctionViewModel.Text;
+        }
+    }
+
+    public class AdminFunctionViewModel
+    {
+        public string Text { get; set; }
     }
 
     public class UserViewModel : ApiModel

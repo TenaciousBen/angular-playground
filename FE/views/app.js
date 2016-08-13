@@ -4,17 +4,8 @@ var app = angular.module("playground",
         "ngCookies"
     ]);
 
-app.config(function($httpProvider) {
-    //Enable cross domain calls
-    $httpProvider.defaults.useXDomain = true;
-});
-
 app.config(function ($stateProvider, $urlRouterProvider) {
-    //
-    // For any unmatched url, redirect to /state1
     $urlRouterProvider.otherwise("/PageSelector");
-    //
-    // Now set up the states
     $stateProvider
         .state("root", {
             url: "/",
@@ -40,6 +31,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             url: "/Authorized",
             templateUrl: "/Authorized/Authorized.html"
         });
+});
+
+app.config(function($httpProvider) {
+    //Enable cross domain calls
+    $httpProvider.defaults.useXDomain = true;
 });
 
 app.config(function ($httpProvider) {

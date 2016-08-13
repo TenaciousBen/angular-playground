@@ -13,6 +13,8 @@ BE/ApiBackend/ApiBackend.Tests/obj/*
 *.csproj.user
 BE/ApiBackend/packages
 BE/ApiBackend/.vs
+*.mdf
+*.ldf
 
 
 # =========================

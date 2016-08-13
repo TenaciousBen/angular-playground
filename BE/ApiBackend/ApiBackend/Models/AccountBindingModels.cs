@@ -31,12 +31,15 @@ namespace ApiBackend.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class RegisterBindingModel
+    public class EmailModel
     {
         [Required]
         [Display(Name = "Email")]
         public string Email { get; set; }
+    }
 
+    public class RegisterBindingModel : EmailModel
+    {
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
@@ -48,11 +51,15 @@ namespace ApiBackend.Models
         public string ConfirmPassword { get; set; }
     }
 
-    public class RegisterExternalBindingModel
+    public class UserRoleModel : EmailModel
     {
         [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
+        [Display(Name = "Role Name")]
+        public string RoleName { get; set; }
+    }
+
+    public class RegisterExternalBindingModel : EmailModel
+    {
     }
 
     public class RemoveLoginBindingModel

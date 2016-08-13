@@ -2,16 +2,30 @@ class AuthorizedController {
     constructor(usersService) {
         this.usersService = usersService;
         this.users = [];
-        this.error = null;
+        this.text = null;
+        this.lastResponse = null;
     }
 
     getUsers() {
         this.usersService.get()
             .then(users => {
+                console.log(users);
                 this.users = users;
+                this.lastResponse = "got users";
             })
-            .catch(error =>
-                this.error = error);
+            .catch(response => {
+                this.lastResponse = response;
+            });
+    }
+
+    adminFunction(text) {
+        this.usersService.adminFunction(text)
+            .then(response => {
+                this.lastResponse = response;
+            })
+            .catch(response => {
+                this.lastResponse = response;
+            });
     }
 }
 

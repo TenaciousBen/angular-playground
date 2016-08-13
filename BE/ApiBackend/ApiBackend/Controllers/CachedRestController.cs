@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Cors;
 using ApiBackend.Persistence;
 
 namespace ApiBackend.Controllers
@@ -22,9 +21,8 @@ namespace ApiBackend.Controllers
         {
         }
     }
-
-    [EnableCors("*", "*", "GET, POST, PUT, DELETE, OPTIONS")]
-    public abstract class CachedRestController<T> : ApiController
+    
+    public abstract class CachedRestController<T> : CorsEnabledController
         where T : ApiModel
     {
         private MemoryCacher MemoryCacher { get; set; } = new MemoryCacher();
@@ -40,14 +38,17 @@ namespace ApiBackend.Controllers
         }
 
         [Route("Get")]
+        [HttpGet]
         // GET api/values
         public IEnumerable<T> Get() => Values;
 
         [Route("Get/{id}")]
+        [HttpGet]
         // GET api/values/5
         public T Get(int id) => GetReferentially(id);
 
         [Route("Post")]
+        [HttpPost]
         // POST api/values
         public T Post([FromBody]T value)
         {
@@ -59,6 +60,7 @@ namespace ApiBackend.Controllers
         }
 
         [Route("Put")]
+        [HttpPut]
         // PUT api/values/5
         public T Put(int id, [FromBody]T value)
         {
@@ -71,6 +73,7 @@ namespace ApiBackend.Controllers
         }
 
         [Route("Delete")]
+        [HttpDelete]
         // DELETE api/values/5
         public void Delete(int id)
         {

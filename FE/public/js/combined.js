@@ -5,17 +5,8 @@
 
 var app = angular.module("playground", ["ui.router", "ngCookies"]);
 
-app.config(function ($httpProvider) {
-    //Enable cross domain calls
-    $httpProvider.defaults.useXDomain = true;
-});
-
 app.config(function ($stateProvider, $urlRouterProvider) {
-    //
-    // For any unmatched url, redirect to /state1
     $urlRouterProvider.otherwise("/PageSelector");
-    //
-    // Now set up the states
     $stateProvider.state("root", {
         url: "/",
         templateUrl: "/root.html"
@@ -35,6 +26,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         url: "/Authorized",
         templateUrl: "/Authorized/Authorized.html"
     });
+});
+
+app.config(function ($httpProvider) {
+    //Enable cross domain calls
+    $httpProvider.defaults.useXDomain = true;
 });
 
 app.config(function ($httpProvider) {
@@ -59,6 +55,8 @@ var AccountController = function () {
         this.loginModel = new LoginModel();
         this.lastResponse = null;
         this.isLoggedIn = this.accountService.isLoggedIn();
+        this.currentUser = accountService.currentUser;
+        this.roleName = "";
     }
 
     _createClass(AccountController, [{
@@ -69,8 +67,46 @@ var AccountController = function () {
             this.accountService.login(loginModel.userName, loginModel.password).then(function (response) {
                 _this.lastResponse = "login successful";
                 _this.isLoggedIn = _this.accountService.isLoggedIn();
+                _this.currentUser = _this.accountService.currentUser;
             }).catch(function (response) {
                 _this.lastResponse = response;
+            });
+        }
+    }, {
+        key: "getRoles",
+        value: function getRoles() {
+            var _this2 = this;
+
+            if (!this.currentUser) return;
+            this.accountService.getRoles(this.currentUser.userName).then(function (roles) {
+                _this2.lastResponse = "get roles successful";
+                _this2.currentUser.roles = roles;
+            }).catch(function (response) {
+                _this2.lastResponse = response;
+            });
+        }
+    }, {
+        key: "addRole",
+        value: function addRole(roleName) {
+            var _this3 = this;
+
+            if (!this.currentUser) return;
+            this.accountService.addRole(this.currentUser.userName, roleName).then(function (roles) {
+                _this3.lastResponse = "add role successful";
+            }).catch(function (response) {
+                _this3.lastResponse = response;
+            });
+        }
+    }, {
+        key: "removeRole",
+        value: function removeRole(roleName) {
+            var _this4 = this;
+
+            if (!this.currentUser) return;
+            this.accountService.removeRole(this.currentUser.userName, roleName).then(function (roles) {
+                _this4.lastResponse = "remove role successful";
+            }).catch(function (response) {
+                _this4.lastResponse = response;
             });
         }
     }, {
@@ -82,12 +118,12 @@ var AccountController = function () {
     }, {
         key: "register",
         value: function register(registerModel) {
-            var _this2 = this;
+            var _this5 = this;
 
             this.accountService.register(registerModel.userName, registerModel.password, registerModel.confirmPassword).then(function (response) {
-                _this2.lastResponse = "registration successful";
+                _this5.lastResponse = "registration successful";
             }).catch(function (response) {
-                _this2.lastResponse = response;
+                _this5.lastResponse = response;
             });
         }
     }]);
@@ -108,10 +144,10 @@ var RegisterModel = function (_LoginModel) {
     function RegisterModel() {
         _classCallCheck(this, RegisterModel);
 
-        var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterModel).call(this));
+        var _this6 = _possibleConstructorReturn(this, Object.getPrototypeOf(RegisterModel).call(this));
 
-        _this3.confirmPassword = "";
-        return _this3;
+        _this6.confirmPassword = "";
+        return _this6;
     }
 
     return RegisterModel;
@@ -130,7 +166,8 @@ var AuthorizedController = function () {
 
         this.usersService = usersService;
         this.users = [];
-        this.error = null;
+        this.text = null;
+        this.lastResponse = null;
     }
 
     _createClass(AuthorizedController, [{
@@ -139,9 +176,22 @@ var AuthorizedController = function () {
             var _this = this;
 
             this.usersService.get().then(function (users) {
+                console.log(users);
                 _this.users = users;
-            }).catch(function (error) {
-                return _this.error = error;
+                _this.lastResponse = "got users";
+            }).catch(function (response) {
+                _this.lastResponse = response;
+            });
+        }
+    }, {
+        key: "adminFunction",
+        value: function adminFunction(text) {
+            var _this2 = this;
+
+            this.usersService.adminFunction(text).then(function (response) {
+                _this2.lastResponse = response;
+            }).catch(function (response) {
+                _this2.lastResponse = response;
             });
         }
     }]);
@@ -289,11 +339,17 @@ var RestServiceBase = function () {
             var deferred = this.$q.defer();
             var params = id ? { id: id } : {};
             this.$http.get(this.apiUrl, { params: params }).then(function (response) {
+                console.log("GET received");
+                console.log(response);
                 var responseIsEnumerable = Object.prototype.toString.call(response.data) === "[object Array]";
                 var enumerableData = responseIsEnumerable ? response.data : [response.data];
                 var convertedData = enumerableData.map(_this.toViewModel);
+                console.log("converted");
+                console.log(convertedData);
                 deferred.resolve(convertedData);
             }).catch(function (error) {
+                console.log("data service error");
+                console.log(error);
                 deferred.reject(error);
             });
             return deferred.promise;
@@ -317,6 +373,8 @@ var RestServiceBase = function () {
                 var converted = _this2.toViewModel(response.data);
                 deferred.resolve(converted);
             }).catch(function (error) {
+                console.log("data service error");
+                console.log(error);
                 deferred.reject(error);
             });
             return deferred.promise;
@@ -341,6 +399,8 @@ var RestServiceBase = function () {
                 var converted = _this3.toViewModel(response.data);
                 deferred.resolve(converted);
             }).catch(function (error) {
+                console.log("data service error");
+                console.log(error);
                 deferred.reject(error);
             });
             return deferred.promise;
@@ -362,6 +422,8 @@ var RestServiceBase = function () {
             this.$http.delete(this.apiUrl, { params: { id: apiModel.id } }).then(function (response) {
                 deferred.resolve();
             }).catch(function (error) {
+                console.log("data service error");
+                console.log(error);
                 deferred.reject(error);
             });
             return deferred.promise;
@@ -450,6 +512,22 @@ var UsersService = function (_RestServiceBase2) {
         value: function toApiModel(viewModel) {
             return viewModel;
         }
+    }, {
+        key: "adminFunction",
+        value: function adminFunction(text) {
+            console.log("text received");
+            console.log(text);
+            var deferred = this.$q.defer();
+            this.$http.post(this.apiUrl + "/AdminFunction", { Text: text }).then(function (response) {
+                console.log("successfully ran admin function");
+                deferred.resolve(response.data);
+            }).catch(function (error) {
+                console.log("data service error");
+                console.log(error);
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        }
     }]);
 
     return UsersService;
@@ -464,6 +542,7 @@ var UserViewModel = function (_ViewModelBase2) {
         var _this7 = _possibleConstructorReturn(this, Object.getPrototypeOf(UserViewModel).call(this, id));
 
         _this7.userName = userName;
+        _this7.roles = [];
         return _this7;
     }
 
@@ -579,12 +658,17 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var AccountService = function () {
-    function AccountService($http, $q, authStateService) {
+    function AccountService($http, $q, authStateService, requestBuffer) {
         _classCallCheck(this, AccountService);
 
         this.$http = $http;
         this.$q = $q;
         this.authStateService = authStateService;
+        this.requestBuffer = requestBuffer;
+        this.refreshPromise = null;
+        this.currentUser = null;
+        //prevents infinite recursion when receiving 401 due to lack of role/authorization, rather than lack of authentication
+        this.hasRefreshed = false;
     }
 
     _createClass(AccountService, [{
@@ -607,7 +691,9 @@ var AccountService = function () {
             }).then(function (response) {
                 console.log("logged in");
                 console.log(response);
+                _this.hasRefreshed = false;
                 _this.authStateService.setToken(response.data.userName, response.data.access_token, response.data.refresh_token);
+                _this.currentUser = new UserViewModel(-1, response.data.userName);
                 deferred.resolve();
             }).catch(function (response) {
                 console.log("login error");
@@ -633,8 +719,8 @@ var AccountService = function () {
             var deferred = this.$q.defer();
             var request = this.$http({
                 url: backendConfig.baseUrl() + "/api/" + "account/register",
-                method: "GET",
-                params: { Email: username, Password: password, ConfirmPassword: password }
+                method: "POST",
+                data: { Email: username, Password: password, ConfirmPassword: password }
             }).then(function (response) {
                 console.log("registered");
                 console.log(response);
@@ -646,15 +732,99 @@ var AccountService = function () {
             });
             return deferred.promise;
         }
+    }, {
+        key: "addRole",
+        value: function addRole(username, rolename) {
+            var deferred = this.$q.defer();
+            var request = this.$http({
+                url: backendConfig.baseUrl() + "/api/" + "account/addRole",
+                method: "POST",
+                data: { Email: username, RoleName: rolename }
+            }).then(function (response) {
+                console.log("added role");
+                console.log(response);
+                deferred.resolve();
+            }).catch(function (response) {
+                console.log("add role error");
+                console.log(response);
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        }
+    }, {
+        key: "removeRole",
+        value: function removeRole(username, rolename) {
+            var deferred = this.$q.defer();
+            var request = this.$http({
+                url: backendConfig.baseUrl() + "/api/" + "account/removeRole",
+                method: "POST",
+                data: { Email: username, RoleName: rolename }
+            }).then(function (response) {
+                console.log("removed role");
+                console.log(response);
+                deferred.resolve();
+            }).catch(function (response) {
+                console.log("remove role error");
+                console.log(response);
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        }
+    }, {
+        key: "getRoles",
+        value: function getRoles(username) {
+            var deferred = this.$q.defer();
+            var request = this.$http({
+                url: backendConfig.baseUrl() + "/api/" + "account/getRoles",
+                method: "GET",
+                params: { Email: username }
+            }).then(function (response) {
+                console.log("got roles");
+                console.log(response);
+                deferred.resolve(response.data);
+            }).catch(function (response) {
+                console.log("get roles error");
+                console.log(response);
+                deferred.reject(response);
+            });
+            return deferred.promise;
+        }
+    }, {
+        key: "refreshToken",
+        value: function refreshToken() {
+            var _this2 = this;
+
+            if (this.refreshPromise === null) {
+                var token = this.authStateService.getToken();
+                if (!this.hasRefreshed && token && token.refreshToken) {
+                    var data = "grant_type=refresh_token&refresh_token=" + token.refreshToken;
+                    var tokenUrl = backendConfig.baseUrl() + '/token';
+                    var headers = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
+                    this.refreshPromise = this.$http.post(tokenUrl, data, headers).then(function (response) {
+                        console.log("refreshSuccessful triggered");
+                        _this2.hasRefreshed = true;
+                        _this2.authStateService.setToken(response.data.userName, response.data.access_token, response.data.refresh_token);
+                        _this2.refreshPromise = null;
+                        _this2.requestBuffer.retryAll();
+                    }).catch(function (response) {
+                        _this2.refreshPromise = null;
+                        _this2.requestBuffer.rejectAll("Token refresh failed.");
+                        _this2.logout();
+                    });
+                } else {
+                    this.requestBuffer.rejectAll("refresh_token missing");
+                }
+            }
+        }
     }]);
 
     return AccountService;
 }();
 
-angular.module("playground").service("accountService", ["$http", "$q", "authStateService", AccountService]);
+angular.module("playground").service("accountService", ["$http", "$q", "authStateService", "requestBuffer", AccountService]);
 "use strict";
 
-function authInterceptor(authStateService) {
+function authInterceptor($injector, $q, authStateService, requestBuffer) {
     var auth = {};
 
     auth.isApiRequest = function (config) {
@@ -670,6 +840,7 @@ function authInterceptor(authStateService) {
                 var authentication = authStateService.getToken();
                 config.headers.Authorization = 'Bearer ' + authentication.accessToken;
                 console.log("Added auth to request");
+                console.log(config);
             } else {
                 //explode or something
             }
@@ -677,28 +848,27 @@ function authInterceptor(authStateService) {
         return config;
     };
 
-    //Not yet implemented
-    //  auth.responseError = function(rejection) {
-    //     console.log("handling rejected request");
-    //     var deferred = $q.defer();
-    //
-    //     if (rejection.status === 401 && this.isApiRequest(rejection.config)) {
-    //         console.log("rejected due to 401");
-    //         var authService = $injector.get('loginService');
-    //         $requestBuffer.append(rejection.config, deferred);
-    //         authService.refreshToken();
-    //     } else {
-    //         /*console.log("_responseError reject");*/
-    //         deferred.reject(rejection);
-    //     }
-    //     /*console.log("Deferred.promise for refreshToken");
-    //      console.log(deferred.promise);*/
-    //     return deferred.promise;
-    // };
+    auth.responseError = function (rejection) {
+        console.log("handling rejected request");
+        var deferred = $q.defer();
+
+        if (!auth.hasRefreshed && rejection.status === 401 && auth.isApiRequest(rejection.config)) {
+            console.log("rejected due to 401");
+            var authService = $injector.get('accountService');
+            requestBuffer.append(rejection.config, deferred);
+            authService.refreshToken();
+        } else {
+            /*console.log("_responseError reject");*/
+            deferred.reject(rejection);
+        }
+        /*console.log("Deferred.promise for refreshToken");
+         console.log(deferred.promise);*/
+        return deferred.promise;
+    };
     return auth;
 }
 
-angular.module("playground").factory("authInterceptor", ["authStateService", authInterceptor]);
+angular.module("playground").factory("authInterceptor", ["$injector", "$q", "authStateService", "requestBuffer", authInterceptor]);
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -753,6 +923,59 @@ var Token = function Token(userName, accessToken, refreshToken) {
 };
 
 angular.module("playground").service("authStateService", ["$cookies", AuthStateService]);
+"use strict";
+
+function requestBuffer($injector) {
+    var requestBufferServiceFactory = {};
+
+    var buffer = [];
+
+    var _append = function _append(config, deferred) {
+        /*console.log("_append function triggered");*/
+        return buffer.push({
+            config: config,
+            deferred: deferred
+        });
+    };
+
+    var _retryAll = function _retryAll(configUpdater) {
+        /* console.log("_retryAll function triggered");*/
+        var updater = configUpdater || function (config) {
+            return config;
+        };
+        for (var i = 0; i < buffer.length; ++i) {
+            var _cfg = updater(buffer[i].config);
+            if (_cfg !== false) _retryHttpRequest(_cfg, buffer[i].deferred);
+        }
+        buffer = [];
+    };
+
+    var _rejectAll = function _rejectAll(reason) {
+        /*console.log("_rejectAll function triggered");*/
+        for (var i = 0; i < buffer.length; ++i) {
+            buffer[i].deferred.reject(reason || "");
+        }
+        buffer = [];
+    };
+
+    var _retryHttpRequest = function _retryHttpRequest(config, deferred) {
+        /*console.log("_retryHttpRequest function triggered");*/
+        var $http = $injector.get('$http');
+        $http(config).then(function (response) {
+            deferred.resolve(response);
+        }, function (response) {
+            deferred.reject(response);
+        });
+    };
+
+    requestBufferServiceFactory.append = _append;
+    requestBufferServiceFactory.retryAll = _retryAll;
+    requestBufferServiceFactory.rejectAll = _rejectAll;
+
+    return requestBufferServiceFactory;
+}
+
+angular.module("playground").factory('requestBuffer', ['$injector', requestBuffer]);
 "use strict";
 
 var frontendConfig = {

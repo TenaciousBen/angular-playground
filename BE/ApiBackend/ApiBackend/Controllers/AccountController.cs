@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.Cors;
 using ApiBackend.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -13,9 +12,8 @@ using Microsoft.AspNet.Identity.Owin;
 namespace ApiBackend.Controllers
 {
     [Authorize]
-    [EnableCors("*", "*", "*")]
     [RoutePrefix("api/Account")]
-    public class AccountController : ApiController
+    public class AccountController : CorsEnabledController
     {
         private ApplicationUserManager _userManager;
 
@@ -43,8 +41,8 @@ namespace ApiBackend.Controllers
         // POST api/Account/Register
         [AllowAnonymous]
         [Route("Register")]
-        [HttpGet]
-        public async Task<IHttpActionResult> Register([FromUri]RegisterBindingModel model)
+        [HttpPost]
+        public async Task<IHttpActionResult> Register([FromBody]RegisterBindingModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -61,6 +59,64 @@ namespace ApiBackend.Controllers
             }
 
             return Ok();
+        }
+
+        [Route("AddRole")]
+        [HttpPost]
+        public async Task<IHttpActionResult> AddRole([FromBody]UserRoleModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            var isInRole = await UserManager.IsInRoleAsync(user.Id, model.RoleName);
+            if (isInRole) return Ok();
+            var roleResult = UserManager.AddToRole(user.Id, model.RoleName);
+
+            if (!roleResult.Succeeded)
+            {
+                return GetErrorResult(roleResult);
+            }
+
+            return Ok();
+        }
+
+        [Route("RemoveRole")]
+        [HttpPost]
+        public async Task<IHttpActionResult> RemoveRole([FromBody]UserRoleModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            var isInRole = await UserManager.IsInRoleAsync(user.Id, model.RoleName);
+            if (!isInRole) return Ok();
+            var roleResult = UserManager.RemoveFromRole(user.Id, model.RoleName);
+
+            if (!roleResult.Succeeded)
+            {
+                return GetErrorResult(roleResult);
+            }
+
+            return Ok();
+        }
+
+        [Route("GetRoles")]
+        [HttpGet]
+        public async Task<IHttpActionResult> GetRoles([FromUri]EmailModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            var roles = await UserManager.GetRolesAsync(user.Id);
+            return Ok(roles);
         }
 
         private IHttpActionResult GetErrorResult(IdentityResult result)

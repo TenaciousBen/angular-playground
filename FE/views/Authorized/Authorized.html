@@ -2,7 +2,15 @@
     <button ng-click="authorizedCtrl.getUsers()">Get users</button>
     <div ng-repeat="user in authorizedCtrl.users">
         <div>
-            <label></label>
+            <label>{{user.userName}}</label>
         </div>
+    </div>
+    <div>
+        <label>Text</label>
+        <input ng-model="authorizedCtrl.text">
+        <button ng-click="authorizedCtrl.adminFunction(authorizedCtrl.text)">Admin function</button>
+    </div>
+    <div ng-if="authorizedCtrl.lastResponse">
+        <p>{{authorizedCtrl.lastResponse}}</p>
     </div>
 </div>
