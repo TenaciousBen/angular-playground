@@ -204,6 +204,66 @@ angular.module("playground").controller("authorizedController", ["usersService",
 "use strict";
 "use strict";
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PeopleSortOption = function PeopleSortOption(display, property, reverse) {
+    _classCallCheck(this, PeopleSortOption);
+
+    this.display = display;
+    this.property = property;
+    this.reverse = reverse;
+};
+
+var PeopleController = function PeopleController(peopleService) {
+    _classCallCheck(this, PeopleController);
+
+    this.peopleService = peopleService;
+    this.people = this.peopleService.getPeople();
+    var defaultSortOption = new PeopleSortOption("alphabetical", "name", false);
+    this.sortOptions = [defaultSortOption, new PeopleSortOption("oldest", "age", true)];
+    this.sortBy = defaultSortOption;
+};
+
+angular.module("playground").controller("peopleController", ["peopleService", PeopleController]);
+"use strict";
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Person = function Person(name, age) {
+    _classCallCheck(this, Person);
+
+    this.name = name;
+    this.age = age;
+};
+
+var PeopleService = function () {
+    function PeopleService() {
+        _classCallCheck(this, PeopleService);
+
+        this.people = [new Person("Micky", 26), new Person("Paula", 57), new Person("Jimmy", 23)];
+    }
+
+    _createClass(PeopleService, [{
+        key: "getPeople",
+        value: function getPeople() {
+            return this.people;
+        }
+    }, {
+        key: "setPeople",
+        value: function setPeople(people) {
+            this.people = people;
+        }
+    }]);
+
+    return PeopleService;
+}();
+
+angular.module("playground").service("peopleService", [PeopleService]);
+"use strict";
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -557,66 +617,6 @@ var UserViewModel = function (_ViewModelBase2) {
 }(ViewModelBase);
 
 angular.module("playground").service("usersService", ["$http", "$q", UsersService]);
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var PeopleSortOption = function PeopleSortOption(display, property, reverse) {
-    _classCallCheck(this, PeopleSortOption);
-
-    this.display = display;
-    this.property = property;
-    this.reverse = reverse;
-};
-
-var PeopleController = function PeopleController(peopleService) {
-    _classCallCheck(this, PeopleController);
-
-    this.peopleService = peopleService;
-    this.people = this.peopleService.getPeople();
-    var defaultSortOption = new PeopleSortOption("alphabetical", "name", false);
-    this.sortOptions = [defaultSortOption, new PeopleSortOption("oldest", "age", true)];
-    this.sortBy = defaultSortOption;
-};
-
-angular.module("playground").controller("peopleController", ["peopleService", PeopleController]);
-"use strict";
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Person = function Person(name, age) {
-    _classCallCheck(this, Person);
-
-    this.name = name;
-    this.age = age;
-};
-
-var PeopleService = function () {
-    function PeopleService() {
-        _classCallCheck(this, PeopleService);
-
-        this.people = [new Person("Micky", 26), new Person("Paula", 57), new Person("Jimmy", 23)];
-    }
-
-    _createClass(PeopleService, [{
-        key: "getPeople",
-        value: function getPeople() {
-            return this.people;
-        }
-    }, {
-        key: "setPeople",
-        value: function setPeople(people) {
-            this.people = people;
-        }
-    }]);
-
-    return PeopleService;
-}();
-
-angular.module("playground").service("peopleService", [PeopleService]);
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -980,7 +980,7 @@ angular.module("playground").factory('requestBuffer', ['$injector', requestBuffe
 
 var frontendConfig = {
     protocol: "http",
-    domain: "localhost",
+    domain: "localhost.com",
     port: 8000,
     baseUrl: function baseUrl() {
         return frontendConfig.protocol + "://" + frontendConfig.domain + ":" + frontendConfig.port;

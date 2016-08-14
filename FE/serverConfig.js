@@ -1,6 +1,6 @@
 var frontendConfig = {
     protocol: "http",
-    domain: "localhost",
+    domain: "localhost.com",
     port: 8000,
     baseUrl: () => frontendConfig.protocol + "://" + frontendConfig.domain + ":" + frontendConfig.port
 };
