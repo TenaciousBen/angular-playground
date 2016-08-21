@@ -1,4 +1,4 @@
-import {backendConfig} from "../../serverConfig";
+import {backendConfig} from "../../../serverConfig";
 
 export class RestServiceBase {
     constructor($http, $q, endpoint) {
@@ -37,13 +37,9 @@ export class RestServiceBase {
         var params = id ? {id: id} : {};
         this.$http.get(this.apiUrl, {params: params})
             .then((response) => {
-                console.log("GET received");
-                console.log(response);
                 var responseIsEnumerable = Object.prototype.toString.call(response.data) === "[object Array]";
                 var enumerableData = responseIsEnumerable ? response.data : [response.data];
                 var convertedData = enumerableData.map(this.toViewModel);
-                console.log("converted");
-                console.log(convertedData);
                 deferred.resolve(convertedData);
             })
             .catch((error) => {

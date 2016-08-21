@@ -17,7 +17,7 @@ gulp.task("clear-public", function () {
 
 gulp.task("combine-js", ["clear-public"], function () {
     var bundler = browserify({
-        entries: './views/app.js',
+        entries: './src/views/app.js',
         debug: true
     });
     bundler.transform(babelify);
@@ -29,28 +29,9 @@ gulp.task("combine-js", ["clear-public"], function () {
         .pipe(source('combined.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
-        // .pipe(uglify({
-        //     mangle: false
-        // })) // Use any gulp plugins you want now
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./public/js/'));
-});
-
-gulp.task("combine-foo", ["clear-public"], function () {
-    var bundler = browserify({
-        entries: 'js/bar/bar.js',
-        debug: true
-    });
-    bundler.transform(babelify);
-
-    bundler.bundle()
-        .on('error', function (err) {
-            console.error(err);
-        })
-        .pipe(source('foo.js'))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
-        //.pipe(uglify()) // Use any gulp plugins you want now
+        .pipe(uglify({
+            mangle: false
+        })) // Use any gulp plugins you want now
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./public/js/'));
 });
@@ -58,16 +39,17 @@ gulp.task("combine-foo", ["clear-public"], function () {
 gulp.task("bower-files", ["clear-public"], function () {
     return gulp.src(mainBowerFiles())
         .pipe(concat('vendor.js'))
-        // .pipe(iife())
-        // .pipe(minifier({}, uglifyjs))
+        .pipe(uglify({
+            mangle: false
+        })) // Use any gulp plugins you want now
         .pipe(gulp.dest("./public/js"));
 });
 
 gulp.task('move-static', ["clear-public"], function () {
     return gulp.src([
-        './views/**/*.html',
-        './views/**/*.css'
-    ], {base: './views/'})
+        './src/views/**/*.html',
+        './src/views/**/*.css'
+    ])
         .pipe(gulp.dest('./public/'));
 });
 
@@ -84,7 +66,6 @@ gulp.task("default",
     [
         "clear-public",
         "combine-js",
-        "combine-foo",
         "move-static",
         "bower-files",
         "run-node"

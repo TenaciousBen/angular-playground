@@ -9,7 +9,6 @@ export class AuthorizedController {
     getUsers() {
         this.usersService.get()
             .then(users => {
-                console.log(users);
                 this.users = users;
                 this.lastResponse = "got users";
             })

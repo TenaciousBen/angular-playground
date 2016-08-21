@@ -1,4 +1,5 @@
-import {backendConfig} from "../../serverConfig";
+import {backendConfig} from "../../../serverConfig";
+import {ViewModelBase} from "../shared/restService";
 
 export class AccountService {
     constructor($http, $q, authStateService, requestBuffer) {
@@ -26,8 +27,6 @@ export class AccountService {
                 return str.join("&");
             }
         }).then(response => {
-            console.log("logged in");
-            console.log(response);
             this.hasRefreshed = false;
             this.authStateService.setToken(response.data.userName, response.data.access_token, response.data.refresh_token);
             this.currentUser = new UserViewModel(-1, response.data.userName);
@@ -56,8 +55,6 @@ export class AccountService {
             method: "POST",
             data: { Email: username, Password: password, ConfirmPassword: password }
         }).then(response => {
-            console.log("registered");
-            console.log(response);
             deferred.resolve();
         }).catch(response => {
             console.log("register error");
@@ -74,8 +71,6 @@ export class AccountService {
             method: "POST",
             data: { Email: username, RoleName: rolename }
         }).then(response => {
-            console.log("added role");
-            console.log(response);
             deferred.resolve();
         }).catch(response => {
             console.log("add role error");
@@ -92,8 +87,6 @@ export class AccountService {
             method: "POST",
             data: { Email: username, RoleName: rolename }
         }).then(response => {
-            console.log("removed role");
-            console.log(response);
             deferred.resolve();
         }).catch(response => {
             console.log("remove role error");
@@ -110,8 +103,6 @@ export class AccountService {
             method: "GET",
             params: { Email: username }
         }).then(response => {
-            console.log("got roles");
-            console.log(response);
             deferred.resolve(response.data);
         }).catch(response => {
             console.log("get roles error");
@@ -130,7 +121,6 @@ export class AccountService {
                 var headers = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
                 this.refreshPromise = this.$http.post(tokenUrl, data, headers)
                     .then(response => {
-                        console.log("refreshSuccessful triggered");
                         this.hasRefreshed = true;
                         this.authStateService.setToken(response.data.userName, response.data.access_token, response.data.refresh_token);
                         this.refreshPromise = null;
@@ -146,5 +136,17 @@ export class AccountService {
                 this.requestBuffer.rejectAll("refresh_token missing");
             }
         }
+    }
+}
+
+export class UserViewModel extends ViewModelBase {
+    constructor(id, userName) {
+        super(id);
+        this.userName = userName;
+        this.roles = [];
+    }
+
+    static fromApiModel(apiModel){
+        return new UserViewModel(apiModel.Id, apiModel.UserName);
     }
 }

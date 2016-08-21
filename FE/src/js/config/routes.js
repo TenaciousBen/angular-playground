@@ -1,5 +1,6 @@
-export function routes($stateProvider, $urlRouterProvider) {
+export function routes($stateProvider, $urlRouterProvider, $locationProvider) {
     $urlRouterProvider.otherwise("/PageSelector");
+    $locationProvider.html5Mode();
     $stateProvider
         .state("root", {
             url: "/",

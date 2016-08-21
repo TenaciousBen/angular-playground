@@ -1,3 +1,5 @@
+import {frontendConfig} from "../../../serverConfig";
+
 export class AuthStateService {
     constructor($cookies) {
         this.$cookies = $cookies;

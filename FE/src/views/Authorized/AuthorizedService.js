@@ -1,4 +1,5 @@
-import {RestServiceBase, ViewModelBase, ApiModelBase} from "../shared/restService";
+import {RestServiceBase, ViewModelBase, ApiModelBase} from "../../js/shared/restService";
+import {UserViewModel} from "../../js/shared/accountService";
 
 export class UsersService extends RestServiceBase {
     constructor($http, $q) {
@@ -14,12 +15,9 @@ export class UsersService extends RestServiceBase {
     };
 
     adminFunction(text) {
-        console.log("text received");
-        console.log(text);
         var deferred = this.$q.defer();
         this.$http.post(this.apiUrl + "/AdminFunction", {Text: text})
             .then((response) => {
-                console.log("successfully ran admin function");
                 deferred.resolve(response.data);
             })
             .catch((error) => {
@@ -31,14 +29,3 @@ export class UsersService extends RestServiceBase {
     }
 }
 
-class UserViewModel extends ViewModelBase {
-    constructor(id, userName) {
-        super(id);
-        this.userName = userName;
-        this.roles = [];
-    }
-
-    static fromApiModel(apiModel){
-        return new UserViewModel(apiModel.Id, apiModel.UserName);
-    }
-}

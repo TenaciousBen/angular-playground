@@ -1,4 +1,4 @@
-import {RestServiceBase, ViewModelBase, ApiModelBase} from "../shared/restService";
+import {RestServiceBase, ViewModelBase, ApiModelBase} from "../../js/shared/restService";
 
 export class ValuesService extends RestServiceBase {
     constructor($http, $q) {
