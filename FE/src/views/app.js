@@ -8,7 +8,6 @@ import {ValuesService} from "./DataAccess/dataAccessServices";
 import {PeopleController} from "./index/indexController";
 import {PeopleService} from "./index/indexServices";
 import {PageSelectorController} from "./PageSelector/pageSelectorController";
-import {requestBuffer} from "../js/shared/requestBuffer";
 import {AuthStateService} from "../js/shared/authStateService";
 import {authInterceptor} from "../js/shared/authInterceptor";
 import {AccountService} from "../js/shared/accountService";
@@ -35,7 +34,6 @@ angular.module("playground",
     //page selector
     .controller("pageSelectorController", ["$state", "accountService", PageSelectorController])
     //shared
-    .factory('requestBuffer', ['$injector', requestBuffer])
     .service("authStateService", ["$cookies", AuthStateService])
-    .factory("authInterceptor", ["$injector", "$q", "authStateService", "requestBuffer", authInterceptor])
-    .service("accountService", ["$http", "$q", "authStateService", "requestBuffer", AccountService]);
+    .factory("authInterceptor", ["$injector", "$q", "authStateService", authInterceptor])
+    .service("accountService", ["$http", "$q", "authStateService", AccountService]);
