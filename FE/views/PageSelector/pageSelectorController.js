@@ -6,7 +6,7 @@ class Page{
     }
 }
 
-class PageSelectorController {
+export class PageSelectorController {
     constructor($state) {
         this.$state = $state;
         this.selectedPage = null;
@@ -22,5 +22,3 @@ class PageSelectorController {
         this.$state.go(selectedPage.route);
     }
 }
-
-angular.module("playground").controller("pageSelectorController", ["$state", "accountService", PageSelectorController]);

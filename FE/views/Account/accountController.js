@@ -1,4 +1,4 @@
-class AccountController {
+export class AccountController {
     constructor(accountService) {
         this.accountService = accountService;
         this.registerModel = new RegisterModel();
@@ -84,5 +84,3 @@ class RegisterModel extends LoginModel {
         this.confirmPassword = "";
     }
 }
-
-angular.module("playground").controller("accountController", ["accountService", AccountController]);

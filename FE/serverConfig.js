@@ -1,21 +1,21 @@
-var frontendConfig = {
+exports.frontendConfig = {
     protocol: "http",
     domain: "localhost.com",
     port: 8000,
-    baseUrl: () => frontendConfig.protocol + "://" + frontendConfig.domain + ":" + frontendConfig.port
+    baseUrl: () => exports.frontendConfig.protocol + "://" + exports.frontendConfig.domain + ":" + exports.frontendConfig.port
 };
 
-var backendConfig = {
+exports.backendConfig = {
     protocol: "http",
     domain: "localhost",
     port: 12345,
-    baseUrl: () => backendConfig.protocol + "://" + backendConfig.domain + ":" + backendConfig.port
+    baseUrl: () => exports.backendConfig.protocol + "://" + exports.backendConfig.domain + ":" + exports.backendConfig.port
 };
 
 //this will be shared across node and ng, so module won't exist on ng
 if (typeof module !== "undefined") {
     module.exports = {
-        frontendConfig: frontendConfig,
-        backendConfig: backendConfig
+        frontendConfig: exports.frontendConfig,
+        backendConfig: exports.backendConfig
     };
 }

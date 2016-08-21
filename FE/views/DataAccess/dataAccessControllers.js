@@ -1,4 +1,4 @@
-class DataAccessController {
+export class DataAccessController {
     constructor(valuesService) {
         this.valuesService = valuesService;
         this.values = [];
@@ -35,5 +35,3 @@ class DataAccessController {
             .catch(error => this.error = error);
     }
 }
-
-angular.module("playground").controller("dataAccessController", ["ValuesService", DataAccessController]);

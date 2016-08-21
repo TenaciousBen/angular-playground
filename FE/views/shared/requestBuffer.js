@@ -1,4 +1,4 @@
-function requestBuffer($injector) {
+export function requestBuffer($injector) {
     var requestBufferServiceFactory = {};
 
     var buffer = [];
@@ -46,5 +46,3 @@ function requestBuffer($injector) {
 
     return requestBufferServiceFactory;
 }
-
-angular.module("playground").factory('requestBuffer', ['$injector', requestBuffer]);

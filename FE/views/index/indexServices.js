@@ -5,7 +5,7 @@ class Person {
     }
 }
 
-class PeopleService {
+export class PeopleService {
     constructor() {
         this.people = [new Person("Micky", 26), new Person("Paula", 57), new Person ("Jimmy", 23)];
     }
@@ -18,5 +18,3 @@ class PeopleService {
         this.people = people;
     }
 }
-
-angular.module("playground").service("peopleService", [PeopleService]);

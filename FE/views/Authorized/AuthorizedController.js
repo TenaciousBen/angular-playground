@@ -1,4 +1,4 @@
-class AuthorizedController {
+export class AuthorizedController {
     constructor(usersService) {
         this.usersService = usersService;
         this.users = [];
@@ -28,5 +28,3 @@ class AuthorizedController {
             });
     }
 }
-
-angular.module("playground").controller("authorizedController", ["usersService", AuthorizedController]);

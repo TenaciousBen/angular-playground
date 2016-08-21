@@ -6,7 +6,7 @@ class PeopleSortOption {
     }
 }
 
-class PeopleController {
+export class PeopleController {
     constructor(peopleService) {
         this.peopleService = peopleService;
         this.people = this.peopleService.getPeople();
@@ -15,5 +15,3 @@ class PeopleController {
         this.sortBy = defaultSortOption;
     }
 }
-
-angular.module("playground").controller("peopleController", ["peopleService", PeopleController]);

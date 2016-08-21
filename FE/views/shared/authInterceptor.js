@@ -1,4 +1,6 @@
-function authInterceptor($injector, $q, authStateService, requestBuffer) {
+import {backendConfig} from "../../serverConfig"
+
+export function authInterceptor($injector, $q, authStateService, requestBuffer) {
     var auth = {};
 
     auth.isApiRequest = function (config) {
@@ -42,5 +44,3 @@ function authInterceptor($injector, $q, authStateService, requestBuffer) {
     };
     return auth;
 }
-
-angular.module("playground").factory("authInterceptor", ["$injector", "$q", "authStateService", "requestBuffer", authInterceptor]);

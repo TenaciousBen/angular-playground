@@ -1,4 +1,4 @@
-class AuthStateService {
+export class AuthStateService {
     constructor($cookies) {
         this.$cookies = $cookies;
         this.authCookieName = "token";
@@ -34,5 +34,3 @@ class Token {
         this.refreshToken = refreshToken;
     }
 }
-
-angular.module("playground").service("authStateService", ["$cookies", AuthStateService]);

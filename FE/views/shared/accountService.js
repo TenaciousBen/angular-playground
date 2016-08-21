@@ -1,4 +1,6 @@
-class AccountService {
+import {backendConfig} from "../../serverConfig";
+
+export class AccountService {
     constructor($http, $q, authStateService, requestBuffer) {
         this.$http = $http;
         this.$q = $q;
@@ -146,5 +148,3 @@ class AccountService {
         }
     }
 }
-
-angular.module("playground").service("accountService", ["$http", "$q", "authStateService", "requestBuffer", AccountService]);
