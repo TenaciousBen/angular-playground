@@ -82,7 +82,7 @@ export class RestServiceBase {
     put(viewModel){
         var deferred = this.$q.defer();
         var apiModel = this.toApiModel(viewModel);
-        this.$http.put(this.apiUrl, {params: {id: apiModel.id}, data: apiModel})
+        this.$http.put(this.apiUrl, apiModel, {params: {id: apiModel.Id}})
             .then((response) => {
                 var converted = this.toViewModel(response.data);
                 deferred.resolve(converted);
@@ -105,7 +105,7 @@ export class RestServiceBase {
     delete(viewModel){
         var deferred = this.$q.defer();
         var apiModel = this.toApiModel(viewModel);
-        this.$http.delete(this.apiUrl, {params: {id: apiModel.id}})
+        this.$http.delete(this.apiUrl, {params: {id: apiModel.Id}})
             .then((response) => {
                 deferred.resolve();
             })
@@ -120,7 +120,7 @@ export class RestServiceBase {
 
 export class ApiModelBase {
     constructor(id) {
-        this.id = id;
+        this.Id = id;
     }
 }
 

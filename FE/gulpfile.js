@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var pump = require('pump');
-var mainBowerFiles = require('main-bower-files');
 var del = require('del');
 var exec = require('child_process').exec;
 var babelify = require('babelify');
@@ -10,39 +9,41 @@ var browserify = require('browserify');
 var buffer = require('vinyl-buffer');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
+var Server = require('karma').Server;
+var glob = require('glob');
 
 gulp.task("clear-public", function () {
     return del(['public']);
 });
 
-gulp.task("combine-js", ["clear-public"], function () {
+function transpile(entries, destination, name, minify = true) {
     var bundler = browserify({
-        entries: './src/views/app.js',
+        entries: entries,
         debug: true
     });
     bundler.transform(babelify);
 
-    bundler.bundle()
+    var piped = bundler.bundle()
         .on('error', function (err) {
             console.error(err);
         })
-        .pipe(source('combined.js'))
+        .pipe(source(name))
         .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(uglify({
-            mangle: false
-        })) // Use any gulp plugins you want now
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./public/js/'));
-});
+        .pipe(sourcemaps.init({loadMaps: true}));
 
-gulp.task("bower-files", ["clear-public"], function () {
-    return gulp.src(mainBowerFiles())
-        .pipe(concat('vendor.js'))
-        .pipe(uglify({
+    if (minify) {
+        piped = piped.pipe(uglify({
             mangle: false
-        })) // Use any gulp plugins you want now
-        .pipe(gulp.dest("./public/js"));
+        }));
+    }
+
+    piped
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest(destination));
+}
+
+gulp.task("combine-js", ["clear-public"], function () {
+    transpile('./src/js/app.js', './public/js/', 'combined.js');
 });
 
 gulp.task('move-static', ["clear-public"], function () {
@@ -53,7 +54,14 @@ gulp.task('move-static', ["clear-public"], function () {
         .pipe(gulp.dest('./public/'));
 });
 
-gulp.task("run-node", ["clear-public", "combine-js", "move-static", "bower-files"], function (cb) {
+gulp.task('test', ["clear-public", "combine-js", "move-static"], function (done) {
+    new Server({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    }, done).start();
+});
+
+gulp.task("run-node", ["clear-public", "combine-js", "move-static", "test"], function (cb) {
     exec("node index.js", function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
@@ -67,6 +75,6 @@ gulp.task("default",
         "clear-public",
         "combine-js",
         "move-static",
-        "bower-files",
+        "test",
         "run-node"
     ]);
